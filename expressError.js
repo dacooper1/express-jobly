@@ -44,10 +44,17 @@ class ForbiddenError extends ExpressError {
   }
 }
 
+class DatabaseError extends ExpressError {
+  constructor(message = "Database Error") {
+    super(message, 500)
+  }
+}
+
 module.exports = {
   ExpressError,
   NotFoundError,
   UnauthorizedError,
   BadRequestError,
   ForbiddenError,
+  DatabaseError
 };
