@@ -1,7 +1,7 @@
 "use strict";
 
 const db = require("../db");
-const { BadRequestError, NotFoundError } = require("../expressError");
+const { BadRequestError, NotFoundError, DatabaseError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 
 /** Related functions for companies. */
@@ -86,6 +86,78 @@ class Company {
 
     return company;
   }
+
+  static async filter(queryData) {
+    const { name, minEmployees, maxEmployees } = queryData;
+  
+    // Validate inputs
+    if (minEmployees !== undefined && maxEmployees !== undefined && minEmployees > maxEmployees) {
+      throw new BadRequestError("minEmployees cannot be greater than maxEmployees");
+    }
+  
+    // Base query
+    let query = `
+      SELECT handle,
+             name,
+             description,
+             num_employees AS "numEmployees",
+             logo_url AS "logoUrl"
+      FROM companies
+    `;
+  
+    const queryParams = [];
+    const conditions = [];
+  
+    // Add conditions dynamically
+    if (minEmployees !== undefined) {
+      queryParams.push(Number(minEmployees));
+      conditions.push(`num_employees >= $${queryParams.length}`);
+    }
+  
+    if (maxEmployees !== undefined) {
+      queryParams.push(Number(maxEmployees));
+      conditions.push(`num_employees <= $${queryParams.length}`);
+    }
+  
+    if (name && name.trim()) {
+      queryParams.push(`%${name.trim()}%`);
+      conditions.push(`name ILIKE $${queryParams.length}`);
+    }
+  
+    // Append WHERE clause only if there are conditions
+    if (conditions.length > 0) {
+      query += " WHERE " + conditions.join(" AND ");
+    }
+  
+    try {
+      console.log("Query:", query);
+      console.log("Query Params:", queryParams);
+    
+      const companyRes = await db.query(query, queryParams);
+    
+      if (companyRes.rows.length === 0) {
+        throw new NotFoundError(
+          `No companies found with filters: maxEmployees=${maxEmployees}, name=${name}`
+        );
+      }
+      
+    
+      return companyRes.rows;
+    
+    } catch (err) {
+      // Only handle unexpected errors (not NotFoundError or BadRequestError)
+      if (err instanceof NotFoundError || err instanceof BadRequestError) {
+        throw err;
+      }
+  
+      console.error("Query Execution Error:", err);
+      throw new DatabaseError(`Failed to execute query: ${query}, Params: ${queryParams}`);
+    }
+  
+
+  }
+  
+  
 
   /** Update company data with `data`.
    *
