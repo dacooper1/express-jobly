@@ -1,17 +1,6 @@
 const { sqlForPartialUpdate } = require('./sql'); // Adjust the path as needed
 const { BadRequestError } = require('../expressError'); // Adjust the path as needed
 
-const {
-    commonBeforeAll,
-    commonBeforeEach,
-    commonAfterEach,
-    commonAfterAll,
-  } = require("./_testCommon");
-  
-  beforeAll(commonBeforeAll);
-  beforeEach(commonBeforeEach);
-  afterEach(commonAfterEach);
-  afterAll(commonAfterAll);
 
 describe("sqlForPartialUpdate", () => {
   test("should generate correct SQL for valid input with jsToSql mapping", () => {
