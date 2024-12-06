@@ -83,7 +83,7 @@ async function commonBeforeAll() {
     companyHandle: "c2",
     title: "test-job2",
     salary: 200,
-    equity: 0.1,
+    equity: 0.2,
   });
 
   await Job.create({
