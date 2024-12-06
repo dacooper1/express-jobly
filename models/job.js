@@ -7,13 +7,13 @@ const { sqlForPartialUpdate } = require("../helpers/sql");
 /** Related functions for companies. */
 
 class Job {
-  /** Create a company (from data), update db, return new company data.
+  /** Create a job (from data), update db, return new job data.
    *
-   * data should be { handle, name, description, numEmployees, logoUrl }
+   * data should be { companyHandle, title, salary, equity }
    *
-   * Returns { handle, name, description, numEmployees, logoUrl }
+   * Returns { id, companyHandle, title, salary, equity  }
    *
-   * Throws BadRequestError if company already in database.
+   * Throws BadRequestError if companyHandle is not in database.
    * */
 
   static async create({ companyHandle, title, salary, equity }) {
@@ -43,9 +43,9 @@ class Job {
     return job;
   }
 
-  /** Find all companies.
+  /** Find all jobs.
    *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * Returns [{ id, title, company_handle, salary, equity }, ...]
    * */
 
   static async findAll() {
@@ -59,7 +59,7 @@ class Job {
 
   /** Given a job id, return data about job.
    *
-   * Returns Returns { handle, name, description, numEmployees, logoUrl }
+   * Returns { id, title, company_handle, salary, equity }
    **/
 
   static async get(id) {
@@ -145,14 +145,15 @@ class Job {
   
   
 
-  /** Update company data with `data`.
+  /** Update job data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain all the
    * fields; this only changes provided ones.
    *
-   * Data can include: {name, description, numEmployees, logoUrl}
+   * Data can include: {salary, equity}
+   * id, companyHandle, and title cannot be changed
    *
-   * Returns {handle, name, description, numEmployees, logoUrl}
+   * Returns {id, title, companyHandle, salary, equity}
    *
    * Throws NotFoundError if not found.
    */
@@ -183,9 +184,9 @@ class Job {
     return job;
   }
 
-  /** Delete given company from database; returns undefined.
+  /** Delete given job from database; 
    *
-   * Throws NotFoundError if company not found.
+   * Throws NotFoundError if job not found.
    **/
 
   static async remove(id) {
