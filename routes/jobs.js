@@ -83,15 +83,15 @@ router.get("/:id", async function (req, res, next) {
   }
 });
 
-/** PATCH /[handle] { fld1, fld2, ... } => { company }
+/** PATCH /[handle] { fld1, fld2, ... } => { job }
  *
- * Patches company data.
+ * Patches job data.
  *
- * fields can be: { name, description, numEmployees, logo_url }
+ * fields can be: { salary, equity }
  *
- * Returns { handle, name, description, numEmployees, logo_url }
+ * Returns { id, title, company_handle AS "companyHandle", salary, equity}
  *
- * Authorization required: login
+ * Authorization required: Admin
  */
 
 router.patch("/:id", ensureAdmin, async function (req, res, next) {
@@ -111,7 +111,7 @@ router.patch("/:id", ensureAdmin, async function (req, res, next) {
 
 /** DELETE /[handle]  =>  { deleted: handle }
  *
- * Authorization: login
+ * Authorization: Admin
  */
 
 router.delete("/:handle", ensureAdmin, async function (req, res, next) {
