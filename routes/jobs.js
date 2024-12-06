@@ -51,21 +51,44 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  try {
-    const filters = req.query
-    
-    if (Object.keys(filters).length === 0){
-      const jobs = await Job.findAll();
-      return res.json({ jobs });
-    } else {
-      const jobs = await Job.filter(filters);
-      return res.json( { jobs })
+    try {
+      const validFilters = ["minSalary", "hasEquity", "title"];
+      const filters = req.query;
+  
+      // Step 1: Validate query keys
+      const filterKeys = Object.keys(filters);
+      for (const filter of filterKeys) {
+        if (!validFilters.includes(filter)) {
+          throw new BadRequestError(`Invalid filter: ${filter}`);
+        }
+      }
+  
+      // Step 2: Validate data types
+      if (filters.minSalary !== undefined) {
+        if (isNaN(Number(filters.minSalary))) {
+          throw new BadRequestError(`Invalid type for minSalary: must be a number`);
+        }
+      }
+  
+      if (filters.hasEquity !== undefined) {
+        if (filters.hasEquity !== "true" && filters.hasEquity !== "false") {
+          throw new BadRequestError(`Invalid type for hasEquity: must be "true" or "false"`);
+        }
+      }
+  
+      // Step 3: Fetch jobs based on filters or fetch all jobs
+      if (filterKeys.length === 0) {
+        const jobs = await Job.findAll();
+        return res.json({ jobs });
+      } else {
+        const jobs = await Job.filter(filters);
+        return res.json({ jobs });
+      }
+    } catch (err) {
+      return next(err);
     }
-    
-  } catch (err) {
-    return next(err);
-  }
-});
+  });
+  
 
 /** GET /[id]  =>  { job }
  *

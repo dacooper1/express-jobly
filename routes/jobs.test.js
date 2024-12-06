@@ -82,3 +82,58 @@ describe("POST /jobs", () => {
     });
   });
   
+  /************************************** GET /companies */
+
+  describe("GET /jobs", () => {
+    test("works: no filters", async () => {
+      const resp = await request(app).get("/jobs");
+      expect(resp.body).toEqual({
+        jobs: [
+            {
+                id: expect.any(Number),
+                companyHandle: "c1",
+                title: "test-job1",
+                salary: 100,
+                equity: "0.1",
+            },
+            {
+                id: expect.any(Number),
+                companyHandle: "c2",
+                title: "test-job2",
+                salary: 200,
+                equity: "0.2",
+            },
+            {
+                id: expect.any(Number),
+                companyHandle: "c3",
+                title: "test-job3",
+                salary: null,
+                equity: null
+            }
+        ],
+      });
+    });
+  
+    test("works: with filters", async () => {
+      const resp = await request(app)
+        .get("/jobs")
+        .query({ minSalary: 200, hasEquity: true });
+      expect(resp.body).toEqual({
+        jobs: [
+          {
+            id: expect.any(Number),
+            companyHandle: "c2",
+            title: "test-job2",
+            salary: 200,
+            equity: "0.2",
+          },
+        ],
+      });
+    });
+  
+    test("bad request with invalid filter", async () => {
+      const resp = await request(app).get("/jobs").query({ minSalary: "not-a-number" });
+      expect(resp.statusCode).toBe(400);
+    });
+  });
+  
