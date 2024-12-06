@@ -292,7 +292,7 @@ describe("DELETE /users/:username", function () {
   test("not found if user missing", async function () {
     const resp = await request(app)
         .delete(`/users/nope`)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(404);
   });
 });
