@@ -52,7 +52,7 @@ function ensureLoggedIn(req, res, next) {
 function ensureAdmin(req, res, next) {
   try {
     console.log("LOCAL USER:", res.locals)
-    if (!res.locals.user || !res.locals.user.isAdmin) {
+    if (!res.locals || !res.locals.user || !res.locals.user.isAdmin) {
       throw new UnauthorizedError("Admin access required");
     }
     return next();
