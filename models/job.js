@@ -56,12 +56,10 @@ class Job {
     return jobsRes.rows;
   }
 
-  /** Given a company handle, return data about company.
+
+  /** Given a job id, return data about job.
    *
-   * Returns { handle, name, description, numEmployees, logoUrl, jobs }
-   *   where jobs is [{ id, title, salary, equity, companyHandle }, ...]
-   *
-   * Throws NotFoundError if not found.
+   * Returns Returns { handle, name, description, numEmployees, logoUrl }
    **/
 
   static async get(id) {
@@ -79,57 +77,59 @@ class Job {
   }
 
   static async filter(queryData) {
-    const { name, minEmployees, maxEmployees } = queryData;
+    const { title, minSalary, hasEquity } = queryData;
   
-    // Validate inputs
-    if (minEmployees !== undefined && maxEmployees !== undefined && minEmployees > maxEmployees) {
-      throw new BadRequestError("minEmployees cannot be greater than maxEmployees");
+      // Validate inputs
+    if (minSalary !== undefined && minSalary < 0) {
+      throw new BadRequestError("minSalary cannot be less than 0");
     }
-  
+
     // Base query
     let query = `
-      SELECT handle,
-             name,
-             description,
-             num_employees AS "numEmployees",
-             logo_url AS "logoUrl"
-      FROM companies
+      SELECT id, 
+            company_handle AS "companyHandle", 
+            title, 
+            salary, 
+            equity
+      FROM jobs
     `;
-  
+
     const queryParams = [];
     const conditions = [];
-  
+
     // Add conditions dynamically
-    if (minEmployees !== undefined) {
-      queryParams.push(Number(minEmployees));
-      conditions.push(`num_employees >= $${queryParams.length}`);
+    if (minSalary !== undefined) {
+      queryParams.push(Number(minSalary));
+      conditions.push(`salary >= $${queryParams.length}`);
     }
-  
-    if (maxEmployees !== undefined) {
-      queryParams.push(Number(maxEmployees));
-      conditions.push(`num_employees <= $${queryParams.length}`);
+
+    if (hasEquity === "true" || hasEquity === true) {
+      // Only add equity condition if hasEquity is explicitly true
+      conditions.push(`equity > 0`);
     }
-  
-    if (name && name.trim()) {
-      queryParams.push(`%${name.trim()}%`);
-      conditions.push(`name ILIKE $${queryParams.length}`);
+
+    if (title && title.trim()) {
+      queryParams.push(`%${title.trim()}%`);
+      conditions.push(`title ILIKE $${queryParams.length}`);
     }
-  
-    // Append WHERE clause only if there are conditions
+
+    // Combine conditions into the query
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
+
+    query += " ORDER BY title";
   
     try {
-      const companyRes = await db.query(query, queryParams);
+      const jobRes = await db.query(query, queryParams);
     
-      if (companyRes.rows.length === 0) {
+      if (jobRes.rows.length === 0) {
         throw new NotFoundError(
-          `No companies found with filters: maxEmployees=${maxEmployees}, name=${name}`
+          `No jobs found with filters`
         );
       }
   
-      return companyRes.rows;
+      return jobRes.rows;
     
     } catch (err) {
       // Only handle unexpected errors (not NotFoundError or BadRequestError)
