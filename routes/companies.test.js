@@ -366,13 +366,13 @@ describe("PATCH /companies/:handle", function () {
     expect(resp.statusCode).toEqual(400);
   });
 
-  test("bad request on invalid data", async function () {
+  test("auth, bad request on invalid data", async function () {
     const resp = await request(app)
         .patch(`/companies/c1`)
         .send({
           logoUrl: "not-a-url",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 });
