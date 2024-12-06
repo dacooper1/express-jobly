@@ -157,29 +157,30 @@ class Job {
    * Throws NotFoundError if not found.
    */
 
-  static async update(handle, data) {
+  static async update(id, data) {
     const { setCols, values } = sqlForPartialUpdate(
         data,
         {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
+          equity: "equity",
+          salary: "salary",
         });
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE companies 
                       SET ${setCols} 
                       WHERE handle = ${handleVarIdx} 
-                      RETURNING handle, 
-                                name, 
-                                description, 
-                                num_employees AS "numEmployees", 
-                                logo_url AS "logoUrl"`;
-    const result = await db.query(querySql, [...values, handle]);
-    const company = result.rows[0];
+                      RETURNING id,
+                                title,
+                                company_handle AS "companyHandle", 
+                                salary,
+                                equity
+                                `;
+    const result = await db.query(querySql, [...values, id]);
+    const job = result.rows[0];
 
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
+    if (!job) throw new NotFoundError(`No job: ${id}`);
 
-    return company;
+    return job;
   }
 
   /** Delete given company from database; returns undefined.
