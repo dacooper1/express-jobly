@@ -136,7 +136,7 @@ describe("create", () => {
   
 
     /************************************** update */
-    
+
   describe("update", () => {
     test("works", async () => {
       const jobs = await Job.findAll();
@@ -163,5 +163,26 @@ describe("create", () => {
       await expect(Job.update(jobId, {})).rejects.toThrow(BadRequestError);
     });
   });
+
   
-  
+      /************************************** remove */
+
+      describe("remove", () => {
+        test("works", async () => {
+          const jobs = await Job.findAll();
+          const jobId = jobs[0].id;
+      
+          const deletedJob = await Job.remove(jobId);
+          expect(deletedJob).toEqual({
+            "deleted" : jobId
+          });
+      
+          const remainingJobs = await Job.findAll();
+          expect(remainingJobs.length).toBe(1);
+        });
+      
+        test("throws NotFoundError if job not found", async () => {
+          await expect(Job.remove(999999)).rejects.toThrow(NotFoundError);
+        });
+      });
+      
