@@ -164,11 +164,11 @@ class Job {
           equity: "equity",
           salary: "salary",
         });
-    const handleVarIdx = "$" + (values.length + 1);
+    const idVarIdx = "$" + (values.length + 1);
 
-    const querySql = `UPDATE companies 
+    const querySql = `UPDATE jobs 
                       SET ${setCols} 
-                      WHERE handle = ${handleVarIdx} 
+                      WHERE id = ${idVarIdx} 
                       RETURNING id,
                                 title,
                                 company_handle AS "companyHandle", 
