@@ -29,8 +29,8 @@ class Job {
     const result = await db.query(
           `INSERT INTO jobs
            (company_handle, title, salary, equity)
-           VALUES ($1, $2, $3, $4, $5)
-           RETURNING company_handle AS "companyHandle", title, salary, equity"`,
+           VALUES ($1, $2, $3, $4)
+           RETURNING company_handle AS "companyHandle", title, salary, equity`,
         [
           companyHandle,
           title,
