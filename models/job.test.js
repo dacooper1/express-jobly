@@ -134,4 +134,34 @@ describe("create", () => {
     });
   });
   
+
+    /************************************** update */
+    
+  describe("update", () => {
+    test("works", async () => {
+      const jobs = await Job.findAll();
+      const jobId = jobs[0].id;
+  
+      const updatedJob = await Job.update(jobId, { salary: 85000 });
+      expect(updatedJob).toEqual({
+        id: jobId,
+        companyHandle: "c1",
+        title: "Backend Developer",
+        salary: 85000,
+        equity: "0.05",
+      });
+    });
+  
+    test("throws NotFoundError if job not found", async () => {
+      await expect(Job.update(999999, { salary: 85000 })).rejects.toThrow(NotFoundError);
+    });
+  
+    test("throws BadRequestError if no data is provided", async () => {
+      const jobs = await Job.findAll();
+      const jobId = jobs[0].id;
+  
+      await expect(Job.update(jobId, {})).rejects.toThrow(BadRequestError);
+    });
+  });
+  
   
