@@ -197,7 +197,7 @@ class Job {
         [id]);
     const job = result.rows[0];
 
-    if (!job) throw new NotFoundError(`No job: ${id}, ${title}`);
+    if (!job) throw new NotFoundError(`No job: ${id}`);
   }
 }
 
