@@ -5,6 +5,7 @@ const request = require("supertest");
 const db = require("../db");
 const app = require("../app");
 
+const Job = require("../models/job")
 const {
   commonBeforeAll,
   commonBeforeEach,
@@ -134,6 +135,34 @@ describe("POST /jobs", () => {
     test("bad request with invalid filter", async () => {
       const resp = await request(app).get("/jobs").query({ minSalary: "not-a-number" });
       expect(resp.statusCode).toBe(400);
+    });
+  });
+
+  /************************************** GET /job/:id */
+  
+  describe("GET /jobs/:id", () => {
+    test("works", async () => {
+      const job = await Job.create({
+        companyHandle: "c1",
+        title: "another-job",
+        salary: 150000,
+        equity: 0.2,
+      });
+      const resp = await request(app).get(`/jobs/${job.id}`);
+      expect(resp.body).toEqual({
+        job: {
+          id: job.id,
+          title: "another-job",
+          companyHandle: "c1",
+          salary: 150000,
+          equity: "0.2",
+        },
+      });
+    });
+  
+    test("not found for no such job", async () => {
+      const resp = await request(app).get("/jobs/999999");
+      expect(resp.statusCode).toBe(404);
     });
   });
   
