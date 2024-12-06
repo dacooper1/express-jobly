@@ -166,7 +166,9 @@ describe("POST /jobs", () => {
     });
   });
 
+
   /************************************** PATCH /jobs */
+
   describe("PATCH /jobs/:id", () => {
     test("works for admin", async () => {
       const job = await Job.create({
@@ -218,6 +220,37 @@ describe("POST /jobs", () => {
         .send({ salary: "not-a-number" })
         .set("Authorization", `Bearer ${u4Token}`);
       expect(resp.statusCode).toBe(400);
+    });
+  });
+  
+   /************************************** DELETE /jobs */
+
+   describe("DELETE /jobs/:id", () => {
+    test("works for admin", async () => {
+      const job = await Job.create({
+        companyHandle: "c1",
+        title: "delete-job",
+        salary: 75000,
+        equity: 0,
+      });
+      const resp = await request(app)
+        .delete(`/jobs/${job.id}`)
+        .set("Authorization", `Bearer ${u4Token}`);
+      expect(resp.body).toEqual({ deleted: `${job.id}` });
+    });
+  
+    test("unauth for non-admin", async () => {
+      const resp = await request(app)
+        .delete("/jobs/1")
+        .set("Authorization", `Bearer ${u1Token}`);
+      expect(resp.statusCode).toBe(401);
+    });
+  
+    test("not found for no such job", async () => {
+      const resp = await request(app)
+        .delete("/jobs/999999")
+        .set("Authorization", `Bearer ${u4Token}`);
+      expect(resp.statusCode).toBe(404);
     });
   });
   
