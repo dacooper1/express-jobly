@@ -67,14 +67,28 @@ function ensureAdmin(req, res, next) {
 
 function ensureCorrectUser(req, res, next) {
   try {
-    if (!res.locals || !res.locals.user || !res.locals.user.isAdmin || res.locals.user !== req.params.username) {
-      throw new UnauthorizedError();
+    // Check if no user is logged in
+    if (!res.locals || !res.locals.user) {
+      throw new UnauthorizedError("No user logged in");
     }
-    return next();
+
+    // Allow access if user is admin
+    if (res.locals.user.isAdmin) {
+      return next();
+    }
+
+    // Allow access if the logged-in user matches the requested username
+    if (res.locals.user.username === req.params.username) {
+      return next();
+    }
+
+    // If neither admin nor correct user, throw an error
+    throw new UnauthorizedError("Unauthorized");
   } catch (err) {
     return next(err);
   }
 }
+
 
 
 
