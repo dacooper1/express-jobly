@@ -5,6 +5,7 @@ const { UnauthorizedError } = require("../expressError");
 const {
   authenticateJWT,
   ensureLoggedIn,
+  ensureAdmin
 } = require("./auth");
 
 
@@ -61,7 +62,7 @@ describe("ensureLoggedIn", function () {
   test("works", function () {
     expect.assertions(1);
     const req = {};
-    const res = { locals: { user: { username: "test", is_admin: false } } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };
@@ -76,5 +77,47 @@ describe("ensureLoggedIn", function () {
       expect(err instanceof UnauthorizedError).toBeTruthy();
     };
     ensureLoggedIn(req, res, next);
+  });
+});
+
+describe("ensureAdmin", function () {
+  test("works: user is admin", function () {
+    expect.assertions(1);
+    const req = {};
+    const res = { locals: { user: { username: "test", isAdmin: true } } }; // Mock admin user
+    const next = function (err) {
+      expect(err).toBeFalsy(); // Should pass without errors
+    };
+    ensureAdmin(req, res, next);
+  });
+
+  test("unauth if user is not admin", function () {
+    expect.assertions(1);
+    const req = {};
+    const res = { locals: { user: { username: "test", isAdmin: false } } }; // Mock non-admin user
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy(); // Should throw UnauthorizedError
+    };
+    ensureAdmin(req, res, next);
+  });
+
+  test("unauth if no user is logged in", function () {
+    expect.assertions(1);
+    const req = {};
+    const res = { locals: {} }; // No user in res.locals
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy(); // Should throw UnauthorizedError
+    };
+    ensureAdmin(req, res, next);
+  });
+
+  test("unauth if res.locals.user is undefined", function () {
+    expect.assertions(1);
+    const req = {};
+    const res = {}; // res.locals is undefined
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy(); // Should throw UnauthorizedError
+    };
+    ensureAdmin(req, res, next);
   });
 });
