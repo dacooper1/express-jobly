@@ -49,15 +49,11 @@ class Job {
    * */
 
   static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
-    return companiesRes.rows;
+    const jobsRes = await db.query(
+          `SELECT company_handle AS "companyHandle", title, salary, equity
+           FROM jobs
+           ORDER BY title`);
+    return jobsRes.rows;
   }
 
   /** Given a company handle, return data about company.
