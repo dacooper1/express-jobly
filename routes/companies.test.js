@@ -56,14 +56,14 @@ describe("POST /companies", function () {
     });
   });
 
-  test("bad request with missing data", async function () {
+  test("auth, bad request with missing data", async function () {
     const resp = await request(app)
         .post("/companies")
         .send({
           handle: "new",
           numEmployees: 10,
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${u4Token}`);
     expect(resp.statusCode).toEqual(400);
   });
 
