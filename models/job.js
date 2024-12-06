@@ -199,6 +199,8 @@ class Job {
     const job = result.rows[0];
 
     if (!job) throw new NotFoundError(`No job: ${id}`);
+
+    return { deleted: id };
   }
 }
 
