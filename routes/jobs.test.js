@@ -165,4 +165,60 @@ describe("POST /jobs", () => {
       expect(resp.statusCode).toBe(404);
     });
   });
+
+  /************************************** PATCH /jobs */
+  describe("PATCH /jobs/:id", () => {
+    test("works for admin", async () => {
+      const job = await Job.create({
+        companyHandle: "c1",
+        title: "patch-job",
+        salary: 80000,
+        equity: 0.05,
+      });
+      const resp = await request(app)
+        .patch(`/jobs/${job.id}`)
+        .send({ salary: 90000 })
+        .set("Authorization", `Bearer ${u4Token}`);
+      expect(resp.body).toEqual({
+        job: {
+          id: job.id,
+          title: "patch-job",
+          companyHandle: "c1",
+          salary: 90000,
+          equity: "0.05",
+        },
+      });
+    });
+  
+    test("unauth for non-admin", async () => {
+      const resp = await request(app)
+        .patch("/jobs/1")
+        .send({ salary: 90000 })
+        .set("Authorization", `Bearer ${u1Token}`);
+      expect(resp.statusCode).toBe(401);
+    });
+  
+    test("not found for no such job", async () => {
+      const resp = await request(app)
+        .patch("/jobs/999999")
+        .send({ salary: 90000 })
+        .set("Authorization", `Bearer ${u4Token}`);
+      expect(resp.statusCode).toBe(404);
+    });
+  
+    test("bad request with invalid data", async () => {
+      const job = await Job.create({
+        companyHandle: "c1",
+        title: "invalid-patch",
+        salary: 80000,
+        equity: 0.05,
+      });
+      const resp = await request(app)
+        .patch(`/jobs/${job.id}`)
+        .send({ salary: "not-a-number" })
+        .set("Authorization", `Bearer ${u4Token}`);
+      expect(resp.statusCode).toBe(400);
+    });
+  });
+  
   
