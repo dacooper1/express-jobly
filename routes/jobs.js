@@ -10,7 +10,7 @@ const { ensureLoggedIn, ensureAdmin} = require("../middleware/auth");
 const Job = require("../models/job");
 
 const jobNewSchema = require("../schemas/jobNew.json");
-// const jobUpdateSchema = require("../schemas/jobUpdate.json");
+const jobUpdateSchema = require("../schemas/jobUpdate.json");
 
 const router = new express.Router();
 
@@ -94,16 +94,16 @@ router.get("/:id", async function (req, res, next) {
  * Authorization required: login
  */
 
-router.patch("/:handle", ensureAdmin, async function (req, res, next) {
+router.patch("/:id", ensureAdmin, async function (req, res, next) {
   try {
-    const validator = jsonschema.validate(req.body, companyUpdateSchema);
+    const validator = jsonschema.validate(req.body, jobUpdateSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
 
-    const company = await Company.update(req.params.handle, req.body);
-    return res.json({ company });
+    const job = await Job.update(req.params.id, req.body);
+    return res.json({ job });
   } catch (err) {
     return next(err);
   }
