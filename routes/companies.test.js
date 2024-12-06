@@ -11,6 +11,8 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  u4Token
+
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -29,14 +31,28 @@ describe("POST /companies", function () {
     numEmployees: 10,
   };
 
-  test("ok for users", async function () {
+  test("authorized user", async function () {
+    const resp = await request(app)
+        .post("/companies")
+        .send(newCompany)
+        .set("authorization", `Bearer ${u4Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      company: newCompany,
+    });
+  });
+
+  test("unauthorized user", async function () {
     const resp = await request(app)
         .post("/companies")
         .send(newCompany)
         .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.statusCode).toEqual(201);
+    expect(resp.statusCode).toEqual(401);
     expect(resp.body).toEqual({
-      company: newCompany,
+      "error": {
+        "message": "Admin access required",
+        "status": 401
+      }
     });
   });
 
@@ -364,10 +380,10 @@ describe("PATCH /companies/:handle", function () {
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for authorized users", async function () {
     const resp = await request(app)
         .delete(`/companies/c1`)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${u4Token}`);
     expect(resp.body).toEqual({ deleted: "c1" });
   });
 
