@@ -15,13 +15,13 @@ const jobNewSchema = require("../schemas/jobNew.json");
 const router = new express.Router();
 
 
-/** POST / { company } =>  { company }
+/** POST / { job } =>  { job }
  *
- * company should be { handle, name, description, numEmployees, logoUrl }
+ * company should be { companyHandle, title, salary, equity }
  *
- * Returns { handle, name, description, numEmployees, logoUrl }
+ * Returns { companyHandle, title, salary, equity }
  *
- * Authorization required: login
+ * Authorization required: Admin 
  */
 
 router.post("/", ensureAdmin, async function (req, res, next) {
@@ -40,12 +40,12 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 });
 
 /** GET /  =>
- *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
+ *   { jobs: [ { companyHandle, title, salary, equity }, ...] }
  *
  * Can filter on provided search filters:
- * - minEmployees
- * - maxEmployees
- * - nameLike (will find case-insensitive, partial matches)
+ * - hasEquity
+ * - minSalary
+ * - titleLike (will find case-insensitive, partial matches)
  *
  * Authorization required: none
  */
@@ -55,11 +55,11 @@ router.get("/", async function (req, res, next) {
     const filters = req.query
     
     if (!filters){
-      const companies = await Company.findAll();
+      const jobs = await Job.findAll();
       return res.json({ companies });
     } else {
-      const companies = await Company.filter(filters);
-      return res.json( { companies })
+      const jobs = await Job.filter(filters);
+      return res.json( { jobs })
     }
     
   } catch (err) {
