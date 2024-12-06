@@ -130,9 +130,6 @@ class Company {
     }
   
     try {
-      console.log("Query:", query);
-      console.log("Query Params:", queryParams);
-    
       const companyRes = await db.query(query, queryParams);
     
       if (companyRes.rows.length === 0) {
@@ -140,8 +137,7 @@ class Company {
           `No companies found with filters: maxEmployees=${maxEmployees}, name=${name}`
         );
       }
-      
-    
+  
       return companyRes.rows;
     
     } catch (err) {
@@ -153,7 +149,6 @@ class Company {
       console.error("Query Execution Error:", err);
       throw new DatabaseError(`Failed to execute query: ${query}, Params: ${queryParams}`);
     }
-  
 
   }
   

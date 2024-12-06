@@ -37,16 +37,22 @@ function authenticateJWT(req, res, next) {
 function ensureLoggedIn(req, res, next) {
   try {
     console.log(res.locals)
-    if (!res.locals.user) throw new UnauthorizedError();
+    if (!res.locals.user) throw new UnauthorizedError("Must be logged in");
     return next();
   } catch (err) {
     return next(err);
   }
 }
 
+/** Middleware to use when admin access is reequired.
+ *
+ * If not, raises Unauthorized.
+ */
+
 function ensureAdmin(req, res, next) {
   try {
-    if (!res.locals.user || !res.locals.user.is_admin) {
+    console.log("LOCAL USER:", res.locals)
+    if (!res.locals.user || !res.locals.user.isAdmin) {
       throw new UnauthorizedError("Admin access required");
     }
     return next();
