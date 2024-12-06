@@ -187,16 +187,16 @@ class Job {
    * Throws NotFoundError if company not found.
    **/
 
-  static async remove(handle) {
+  static async remove(id) {
     const result = await db.query(
           `DELETE
-           FROM companies
-           WHERE handle = $1
-           RETURNING handle`,
-        [handle]);
-    const company = result.rows[0];
+           FROM jobs
+           WHERE id = $1
+           RETURNING id, title, company_handle AS "companyHandle"`,
+        [id]);
+    const job = result.rows[0];
 
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
+    if (!job) throw new NotFoundError(`No job: ${id}, ${title}`);
   }
 }
 
