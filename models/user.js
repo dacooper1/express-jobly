@@ -206,23 +206,23 @@ class User {
   }
 
   static async applyToJob(jobId, username){
-    checkJob = await db.query(`
+    const checkJob = await db.query(`
       SELECT id
       FROM jobs
       WHERE id = $1
     `, [jobId])
 
-    if (!checkJob) {
+    if (!checkJob.rows[0]) {
       throw new NotFoundError(`No job: ${jobId}`)
     }
 
-    checkUser = await db.query(`
+    const checkUser = await db.query(`
     SELECT username 
     FROM users 
     WHERE username = $1`
     , [username])
 
-    if (!checkUser) {
+    if (!checkUser.rows[0]) {
       throw new NotFoundError(`No user: ${username}`)
     }
 
@@ -232,7 +232,7 @@ class User {
     RETURNING job_id`,
     [username, jobId])
 
-    const applied = result.row[0]
+    const applied = result.rows[0]
 
     return applied;
   }
