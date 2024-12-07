@@ -228,3 +228,43 @@ describe("remove", function () {
     }
   });
 });
+
+/************************************** applyToJob */
+
+describe("applyToJob", () => {
+  test("works for valid job and user", async () => {
+    const result = await User.applyToJob(1, "u1");
+    expect(result).toEqual({ job_id: 1 });
+
+    const checkApplication = await db.query(
+      `SELECT username, job_id 
+       FROM applications 
+       WHERE username = 'u1' AND job_id = 1`
+    );
+    expect(checkApplication.rows).toHaveLength(1);
+    expect(checkApplication.rows[0]).toEqual({
+      username: "u1",
+      job_id: 1,
+    });
+  });
+
+  test("throws NotFoundError if job does not exist", async () => {
+    await expect(User.applyToJob(999, "u1")).rejects.toThrow(NotFoundError);
+  });
+  
+  test("throws NotFoundError if user does not exist", async () => {
+    await expect(User.applyToJob(1, "invalidUser")).rejects.toThrow(NotFoundError);
+  });
+
+  test("throws BadRequestError if user already applied", async () => {
+    // First application should work
+    await User.applyToJob(1, "u1");
+  
+    // Duplicate application should throw an error
+    await expect(User.applyToJob(1, "u1")).rejects.toThrow(
+      BadRequestError
+    );
+  });
+  
+});
+
