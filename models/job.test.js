@@ -53,7 +53,6 @@ describe("create", () => {
   describe("findAll", () => {
     test("works", async () => {
       const jobs = await Job.findAll();
-      console.log(jobs)
       expect(jobs).toEqual([
         {
             id: expect.any(Number),
