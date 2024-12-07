@@ -107,8 +107,8 @@ describe("register", function () {
 
 /************************************** findAll */
 
-describe("findAll", function () {
-  test("works", async function () {
+describe("findAll", () => {
+  test("works: returns users with applied jobs", async () => {
     const users = await User.findAll();
     expect(users).toEqual([
       {
@@ -117,6 +117,7 @@ describe("findAll", function () {
         lastName: "U1L",
         email: "u1@email.com",
         isAdmin: false,
+        jobs: [expect.any(Number)], // User 'u1' has applied to job with id 1
       },
       {
         username: "u2",
@@ -124,10 +125,37 @@ describe("findAll", function () {
         lastName: "U2L",
         email: "u2@email.com",
         isAdmin: false,
+        jobs: [], // User 'u2' has not applied to any jobs
+      },
+    ]);
+  });
+
+  test("works: no applications for any user", async () => {
+    // Clear applications table
+    await db.query("DELETE FROM applications");
+
+    const users = await User.findAll();
+    expect(users).toEqual([
+      {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "u1@email.com",
+        isAdmin: false,
+        jobs: [],
+      },
+      {
+        username: "u2",
+        firstName: "U2F",
+        lastName: "U2L",
+        email: "u2@email.com",
+        isAdmin: false,
+        jobs: [],
       },
     ]);
   });
 });
+
 
 /************************************** get */
 
@@ -140,6 +168,7 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+      jobs: [expect.any(Number)]
     });
   });
 
@@ -244,7 +273,7 @@ describe("applyToJob", () => {
     expect(checkApplication.rows).toHaveLength(1);
     expect(checkApplication.rows[0]).toEqual({
       username: "u1",
-      job_id: 1,
+      job_id: 1
     });
   });
 
