@@ -102,18 +102,46 @@ class User {
    **/
 
   static async findAll() {
-    const result = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           ORDER BY username`,
+    // Fetch all users
+    const userResults = await db.query(
+      `SELECT username,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              is_admin AS "isAdmin"
+       FROM users
+       ORDER BY username`
     );
-
-    return result.rows;
+  
+    const users = userResults.rows;
+    console.log(users)
+  
+    // Fetch all applications
+    const appResults = await db.query(
+      `SELECT a.username, a.job_id 
+       FROM applications AS a
+       JOIN jobs AS j ON a.job_id = j.id`
+    );
+  
+    const applications = appResults.rows;
+  
+    // Map jobs to users
+    const userJobMap = {};
+    for (let app of applications) {
+      if (!userJobMap[app.username]) {
+        userJobMap[app.username] = [];
+      }
+      userJobMap[app.username].push(app.job_id);
+    }
+  
+    // Add jobs to each user
+    for (let user of users) {
+      user.jobs = userJobMap[user.username] || [];
+    }
+  
+    return users;
   }
+  
 
   /** Given a username, return data about user.
    *
@@ -231,7 +259,7 @@ class User {
    if (checkApplied.rows[0]) {
     throw new BadRequestError(`User: ${username} has already applied for Job: ${jobId}`)
    }
-   
+
     if (!checkUser.rows[0]) {
       throw new NotFoundError(`No user: ${username}`)
     }
