@@ -146,29 +146,43 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   *   where jobs is { id, title, company_handle }
    *
    * Throws NotFoundError if user not found.
    **/
 
   static async get(username) {
     const userRes = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
-        [username],
+      `SELECT u.username,
+              u.first_name AS "firstName",
+              u.last_name AS "lastName",
+              u.email,
+              u.is_admin AS "isAdmin",
+              a.job_id AS "jobId"
+       FROM users AS u
+       LEFT JOIN applications AS a ON u.username = a.username
+       WHERE u.username = $1`,
+      [username]
     );
-
-    const user = userRes.rows[0];
-
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-
-    return user;
+  
+    if (userRes.rows.length === 0) throw new NotFoundError(`No user: ${username}`);
+  
+    // Extract user details from the first row
+    const { firstName, lastName, email, isAdmin } = userRes.rows[0];
+  
+    // Collect all job IDs from the rows
+    const jobs = userRes.rows.map(row => row.jobId).filter(jobId => jobId !== null);
+  
+    return {
+      username,
+      firstName,
+      lastName,
+      email,
+      isAdmin,
+      jobs,
+    };
   }
+  
 
   /** Update user data with `data`.
    *
