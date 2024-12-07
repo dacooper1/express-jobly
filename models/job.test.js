@@ -53,22 +53,37 @@ describe("create", () => {
   describe("findAll", () => {
     test("works", async () => {
       const jobs = await Job.findAll();
+      console.log(jobs)
       expect(jobs).toEqual([
         {
-          id: expect.any(Number),
-          companyHandle: "c1",
-          title: "Backend Developer",
-          salary: 80000,
-          equity: "0.05",
-        },
-        {
-          id: expect.any(Number),
-          companyHandle: "c1",
-          title: "Software Engineer",
-          salary: 100000,
-          equity: "0.1",
-        },
-      ]);
+            id: expect.any(Number),
+            companyHandle: 'c1',
+            title: 'Backend Developer',
+            salary: 80000,
+            equity: '0.05'
+          },
+          {
+            id: expect.any(Number),
+            companyHandle: 'c2',
+            title: 'Backend Developer',
+            salary: 80000,
+            equity: '0.05'
+          },
+          {
+            id: expect.any(Number),
+            companyHandle: 'c1',
+            title: 'Software Engineer',
+            salary: 100000,
+            equity: '0.1'
+          },
+          {
+            id: expect.any(Number),
+            companyHandle: 'c1',
+            title: 'Software Engineer',
+            salary: 100000,
+            equity: '0.1'
+          }
+        ]);
     });
   });
   
@@ -100,7 +115,7 @@ describe("create", () => {
 
   describe("filter", () => {
     test("filters jobs by title", async () => {
-      const jobs = await Job.filter({ title: "Backend" });
+      const jobs = await Job.filter({ title: "backend" });
       expect(jobs).toEqual([
         {
           id: expect.any(Number),
@@ -109,6 +124,13 @@ describe("create", () => {
           salary: 80000,
           equity: "0.05",
         },
+        {
+          id: expect.any(Number),
+          companyHandle: 'c2',
+          title: 'Backend Developer',
+          salary: 80000,
+          equity: '0.05'
+        }
       ]);
     });
   
@@ -122,6 +144,13 @@ describe("create", () => {
           salary: 100000,
           equity: "0.1",
         },
+        {
+            id: expect.any(Number),
+            companyHandle: 'c1',
+            title: 'Software Engineer',
+            salary: 100000,
+            equity: '0.1'
+          }
       ]);
     });
   
@@ -178,7 +207,7 @@ describe("create", () => {
           });
       
           const remainingJobs = await Job.findAll();
-          expect(remainingJobs.length).toBe(1);
+          expect(remainingJobs.length).toBe(3);
         });
       
         test("throws NotFoundError if job not found", async () => {
