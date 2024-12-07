@@ -222,6 +222,16 @@ class User {
     WHERE username = $1`
     , [username])
 
+    const checkApplied = await db.query(`
+    SELECT username, job_id 
+    FROM applications
+    WHERE username = $1 AND job_id =$2
+   `, [username, jobId])
+
+   if (checkApplied.rows[0]) {
+    throw new BadRequestError(`User: ${username} has already applied for Job: ${jobId}`)
+   }
+   
     if (!checkUser.rows[0]) {
       throw new NotFoundError(`No user: ${username}`)
     }
